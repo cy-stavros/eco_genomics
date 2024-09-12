@@ -18,4 +18,6 @@ Notes:
 
 -   zcat command lets you take a peek into a these huge files using something like head
 
--   If you are in the correct directory w/ a specific file or directory, you can use tab to auto-complete the file name or directory/
+-   If you are in the correct directory w/ a specific file or directory, you can use tab to auto-complete the file name or directory
+
+    ### 09-12-2024 - 
