@@ -20,4 +20,18 @@ Notes:
 
 -   If you are in the correct directory w/ a specific file or directory, you can use tab to auto-complete the file name or directory
 
-    ### 09-12-2024 - 
+### 09-12-2024
+
+- Worked on viewing sequence data and Q-scores in command line
+
+### 09-17-2024
+
+- worked on filtering the VCF file from 3 directions: depth, missingness, and low-frequency alleles
+
+- low depth (hereforth DP) results in inaccurate calls, while excessively high DP can be the result of assembly errors or paralogy (reads from duplicated genes mapping to the same position)
+
+- Missingness is filtered in two aspects, individual-level excludes individuals that don't have data for many of the observed snps, while snp-level excludes snps that only apply to a few individuals (not really sure why analyses can't account for this missingness though, cuz it seems to throw out a lot of data (unless that data is inaccurate trash?))
+
+- (putative) low-frequency alleles (like less than 1%) are often just fake articfacts of bad reads, so those are filtered out.
+
+- also note, you typically want to only handle biallelic snps (b/c from my understanding, more than one allele at any one position is exceedingly rare within a species (b/c you'd have to get a mutation at the same position twice!)) this might apply for larger, phylogenetic analyses but we don't have to worry about that right now. 
