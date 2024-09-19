@@ -35,3 +35,15 @@ Notes:
 - (putative) low-frequency alleles (like less than 1%) are often just fake articfacts of bad reads, so those are filtered out.
 
 - also note, you typically want to only handle biallelic snps (b/c from my understanding, more than one allele at any one position is exceedingly rare within a species (b/c you'd have to get a mutation at the same position twice!)) this might apply for larger, phylogenetic analyses but we don't have to worry about that right now. 
+
+### 09-19-2024
+
+- Taking filtered vcf from 01 VCF filtering and generating a manhattan plot in 02_Diversity_Differentiation
+
+- first, wrangling data to join in the metadata with info like pop, region (as always, see script for more notes)
+
+-breaking down data into chromosomes, removing scaffolds
+
+- using genetic_diff to get Fst (here as Gst, but the two are the same for biallelic SNPs)
+
+- then, generating manahattan plot!!
