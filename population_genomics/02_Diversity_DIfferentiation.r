@@ -87,3 +87,8 @@ vcf.div.MHplot %>%
 #notice a  still a large # of SNP samples in NE when you filter out 0 values 
 #(SNPs that are prob fixed in the population), meaning there are still many snps 
 #where both alleles are present in some amount in NE (admixture???)
+
+vcf
+#593 samples, 15,456 SNPs
+
+
