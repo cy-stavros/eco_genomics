@@ -34,7 +34,31 @@ geno <- vcf2geno(input.file="/gpfs1/home/c/s/cstavros/vcf_final.filtered.thinned
 
 CentPCA <- LEA::pca("outputs/vcf_final.filtered.thinned.geno", scale=TRUE)
 
-plot(CentPCA$projections,
-     col=as.factor(meta2$region))
-     legend("bottomright", legend=as.factor(unique(meta2$region)),
-                                            fill=as.factor(unique(meta2$region)))
+#if you've already done PCA preiviously, you can load the results without running it again like so:
+CentPCA <- load.pcaProject("vcf_final.filtered.thinned.pcaProject")
+
+show(CentPCA)
+
+plot(CentPCA) #shows scree plot that shows eigen values for each principal component
+#units aren't important, but you can tell it levels off very quickly
+
+#plot(CentPCA$projections,
+#     col=as.factor(meta2$region))
+#     legend("bottomright", legend=as.factor(unique(meta2$region)),
+#                                            fill=as.factor(unique(meta2$region)))
+
+#making a prettier version in ggplot
+
+ggplot(as.data.frame(CentPCA$projections),
+       aes(x=V1, y=V2, color=meta2$region, shape=meta2$continent)) +
+       geom_point(alpha=.5) +
+  labs(title="Centaurea genetic PCA", x="PC1", y="PC2", color="Region",shape="Continent")
+#(if you wanna zoom in) + xlim(-10,10) + ylim(-10,10)
+
+#clear signs of structure!!!
+# 2 clouds for NE corresponding to C. jaceaea and C. nigra!
+
+#saving!
+#also note: the percentage of variation each eigenvector explains is its eigenvalue / sum(all eigenvalues)
+ggsave("figures/CentPCA_PC1vPC2.pdf", width=6, height=6, units="in")
+

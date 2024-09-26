@@ -47,3 +47,21 @@ Notes:
 - using genetic_diff to get Fst (here as Gst, but the two are the same for biallelic SNPs)
 
 - then, generating manahattan plot!!
+
+### 09-24-2024
+
+### 09-26-2024
+
+-Picking up where we left off last time with the PCA plot.
+
+- Note - if returning to a pca you ran last time, you can load the results without running it again by using load.pcaProject()
+
+- This time we're making in in ggplot which gives us more customizability
+
+- you can also change it from V1 and V2 to 2 and 3
+
+- cropping the graph and adjusting alpha (opacitiy) helps you see things you might not see otherwise
+
+- also learned that plot() of a pca gives you a scree plot
+
+- then discussed Admixture Analysis (structure), but didn't get to coding it yet. Looking forward to doing that soon!
