@@ -62,7 +62,7 @@ Notes:
 
 - the line " options(bitmapType = "cairo") " does something with the way the vacc generates figures, I'm not quite sure what but the pca wasn't generating properly without it.
 
--PCAs need to be filtered for linkage disequlibrium b/c close snps will not likely interact as separate variables
+- PCAs need to be filtered for linkage disequlibrium b/c close snps will not likely interact as separate variables
 
 - "thinned" file (w/ no loci within 500 bp)
 
