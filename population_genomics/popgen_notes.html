@@ -367,15 +367,113 @@ today with variant call format files (VCFs)</p>
 <li><p>Paired-end data is expensive and somewhat redundant due to loci
 linkage, depending on the study it might be better to spend money on
 getting more fragments than reading from the other end.</p></li>
-<li><p>Don’t forget to pull at the start of your R sesh!</p></li>
+<li><p>Don’t forget to pull from github at the start of your R
+sesh!</p></li>
 <li><p>Q scores are encoded in fastq files using characters, if you see
-a letter (I is 40!!), that’s good, other characters not so much</p></li>
+a letter (I is 40!!), that’s good, other characters (#@%) not so
+much</p></li>
 <li><p>zcat command lets you take a peek into a these huge files using
 something like head</p></li>
 <li><p>If you are in the correct directory w/ a specific file or
 directory, you can use tab to auto-complete the file name or
-directory</p>
-<h3 id="section">09-12-2024 -</h3></li>
+directory</p></li>
+</ul>
+</div>
+<div id="section" class="section level3">
+<h3>09-12-2024</h3>
+<ul>
+<li><p>Worked on viewing sequence data and Q-scores in command
+line</p></li>
+<li><p>Most of this was in command line, so I don’t have inline notes
+for it unfortunately</p></li>
+<li><p>Command line allows us to take a peak into these HUGE files to
+see what the actual sequence reads look like</p></li>
+</ul>
+<p>-unsurprisingly, different areas have different numbers of reads
+(depth), and sometimes these reads are conflicting</p>
+<ul>
+<li>conflicting reads can be a result of a genuine mistake in the
+sequencer, or the result of an individual being heterozygous at this
+site. (Q-scores and proportion of the reads can help parse this)</li>
+</ul>
+</div>
+<div id="section-1" class="section level3">
+<h3>09-17-2024</h3>
+<ul>
+<li><p>worked on filtering the VCF file from 3 directions: depth,
+missingness, and low-frequency alleles</p></li>
+<li><p>low depth (hereforth DP) results in inaccurate calls, while
+excessively high DP can be the result of assembly errors or paralogy
+(reads from duplicated genes mapping to the same position)</p></li>
+<li><p>Missingness is filtered in two aspects, individual-level excludes
+individuals that don’t have data for many of the observed snps, while
+snp-level excludes snps that only apply to a few individuals (not really
+sure why analyses can’t account for this missingness though, cuz it
+seems to throw out a lot of data (unless that data is inaccurate
+trash?))</p></li>
+<li><p>(putative) low-frequency alleles (like less than 1%) are often
+just fake articfacts of bad reads, so those are filtered out.</p></li>
+<li><p>also note, you typically want to only handle biallelic snps (b/c
+from my understanding, more than one allele at any one position is
+exceedingly rare within a species (b/c you’d have to get a mutation at
+the same position twice!)) this might apply for larger, phylogenetic
+analyses but we don’t have to worry about that right now.</p></li>
+</ul>
+</div>
+<div id="section-2" class="section level3">
+<h3>09-19-2024</h3>
+<ul>
+<li><p>Taking filtered vcf from 01 VCF filtering and generating a
+manhattan plot in 02_Diversity_Differentiation</p></li>
+<li><p>first, wrangling data to join in the metadata with info like pop,
+region (as always, see script for more notes)</p></li>
+</ul>
+<p>-breaking down data into chromosomes, removing scaffolds</p>
+<ul>
+<li><p>using genetic_diff to get Fst (here as Gst, but the two are the
+same for biallelic SNPs)</p></li>
+<li><p>then, generating manahattan plot!!</p></li>
+</ul>
+</div>
+<div id="section-3" class="section level3">
+<h3>09-24-2024</h3>
+<ul>
+<li><p>starting new script (03) to generate a PCA</p></li>
+<li><p>the line ” options(bitmapType = “cairo”) ” does something with
+the way the vacc generates figures, I’m not quite sure what but the pca
+wasn’t generating properly without it.</p></li>
+</ul>
+<p>-PCAs need to be filtered for linkage disequlibrium b/c close snps
+will not likely interact as separate variables</p>
+<ul>
+<li><p>“thinned” file (w/ no loci within 500 bp)</p></li>
+<li><p>(as always, more notes on this stuff in the script)</p></li>
+<li><p>We’ve been working with a compressed version of our file (.gz)
+but we need to open it outside of our repo to generate the pca
+file</p></li>
+<li><p>To “hide” this from github, we’re using the system() command
+which from my understanding basically lets you treat rstudio like
+command line (refer back to line 29)</p></li>
+<li><p>Once we do the proper data wrangling to create a pca file, it can
+be graphed using baseR plot()</p></li>
+<li><p>Ran out of time today, but we’ll come back thurs and make a nicer
+looking one with ggplot</p></li>
+</ul>
+</div>
+<div id="section-4" class="section level3">
+<h3>09-26-2024</h3>
+<p>-Picking up where we left off last time with the PCA plot.</p>
+<ul>
+<li><p>Note - if returning to a pca you ran last time, you can load the
+results without running it again by using load.pcaProject()</p></li>
+<li><p>This time we’re making in in ggplot which gives us more
+customizability</p></li>
+<li><p>you can also change it from V1 and V2 to 2 and 3</p></li>
+<li><p>cropping the graph and adjusting alpha (opacitiy) helps you see
+things you might not see otherwise</p></li>
+<li><p>also learned that plot() of a pca gives you a scree plot</p></li>
+<li><p>then discussed Admixture Analysis (structure), but didn’t get to
+coding it yet. Looking forward to doing that soon!</p></li>
 </ul>
 </div>
 </div>

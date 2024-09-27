@@ -12,9 +12,9 @@ Notes:
 
 -   Paired-end data is expensive and somewhat redundant due to loci linkage, depending on the study it might be better to spend money on getting more fragments than reading from the other end.
 
--   Don't forget to pull at the start of your R sesh!
+-   Don't forget to pull from github at the start of your R sesh!
 
--   Q scores are encoded in fastq files using characters, if you see a letter (I is 40!!), that's good, other characters not so much
+-   Q scores are encoded in fastq files using characters, if you see a letter (I is 40!!), that's good, other characters (#@%) not so much
 
 -   zcat command lets you take a peek into a these huge files using something like head
 
@@ -23,6 +23,14 @@ Notes:
 ### 09-12-2024
 
 - Worked on viewing sequence data and Q-scores in command line
+
+- Most of this was in command line, so I don't have inline notes for it unfortunately
+
+- Command line allows us to take a peak into these HUGE files to see what the actual sequence reads look like
+
+-unsurprisingly, different areas have different numbers of reads (depth), and sometimes these reads are conflicting
+
+- conflicting reads can be a result of a genuine mistake in the sequencer, or the result of an individual being heterozygous at this site. (Q-scores and proportion of the reads can help parse this)
 
 ### 09-17-2024
 
@@ -49,6 +57,25 @@ Notes:
 - then, generating manahattan plot!!
 
 ### 09-24-2024
+
+- starting new script (03) to generate a PCA
+
+- the line " options(bitmapType = "cairo") " does something with the way the vacc generates figures, I'm not quite sure what but the pca wasn't generating properly without it.
+
+-PCAs need to be filtered for linkage disequlibrium b/c close snps will not likely interact as separate variables
+
+- "thinned" file (w/ no loci within 500 bp)
+
+- (as always, more notes on this stuff in the script)
+
+- We've been working with a compressed version of our file (.gz) but we need to open it outside of our repo to generate the pca file
+
+- To "hide" this from github, we're using the system() command which from my understanding basically lets you treat rstudio like command line (refer back to line 29)
+
+- Once we do the proper data wrangling to create a pca file, it can be graphed using baseR plot()
+
+- Ran out of time today, but we'll come back thurs and make a nicer looking one with ggplot
+
 
 ### 09-26-2024
 
