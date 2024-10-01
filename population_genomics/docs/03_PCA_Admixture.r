@@ -18,7 +18,7 @@ meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
 
 dim(meta)
 
-meta2 <- meta[meta$id %in% colnames(vcf.thin@gt[, -1]) , ]
+meta2 <- meta[meta$id %in% colnames(vcf@gt[, -1]) , ]
 
 dim(meta2)
 
@@ -62,3 +62,60 @@ ggplot(as.data.frame(CentPCA$projections),
 #also note: the percentage of variation each eigenvector explains is its eigenvalue / sum(all eigenvalues)
 ggsave("figures/CentPCA_PC1vPC2.pdf", width=6, height=6, units="in")
 
+
+#10/1/24
+#Now, we will run admixture analyses and create plots
+#for admixture, we're going to use the LEA R package
+#the function inside LEA is called 'snmf'
+#snmf is very fast, much faster than bayesian structure analyses, but yields comparable results
+
+CentAdmix <- snmf("outputs/vcf_final.filtered.thinned.geno",
+                  K=1:10, #giving it a range of K values
+                  entropy = T, #asks it to do cross-validation
+                  repetitions = 3,
+                  project = "new") # if you're adding to this analysis later, you could choose project="
+
+plot(CentAdmix) #plot of the cross-validatation experiment - if it doesn't start to level off, you should probably increase K
+#look for the elbow in the plot! consider a range within the elbow (~3-5 for this data)
+#the graph will loop back up as K increases, some sample at the bottom of the U
+#basically, you're looking for the least complex model that explains your data reasonably well
+
+par(mfrow=c(2,1)) #creates stacked plots
+plot(CentAdmix, col="blue4", main="SNMF")
+plot(CentPCA$eigenvalues[1:10], ylab="Eigenvalues", xlab="Number of PCs", col="blue4", main="PCA") #notice the similarity in graphs!
+dev.off() #resets to non-stacked plots
+
+myK = 4 #creates little placeholder we can modify later
+
+CE = cross.entropy(CentAdmix, K=myK)
+best = which.min(CE)
+#not sure why my results aren't printing to screen rn
+
+myKQ = Q(CentAdmix, K=myK, run=best)
+#results in a big matrix, where each column is a different group
+
+myKQmeta = cbind(myKQ, meta2) #to use cbind(), you have to have the same number of rows in the same order!
+
+my.colors = c("blue4", "gold", "tomato", "lightblue", "olivedrab") #setting up little color palette
+
+myKQmeta = as_tibble(myKQmeta) %>% 
+  group_by(continent) %>% 
+  arrange(region, pop, .by_group = T) #says: first group by continent, and then group within contnent by region and pop
+
+pdf("figures/Admixture_K4.pdf",width=10, height=5)
+barplot(as.matrix(t(myKQmeta[ , 1:myK])),
+        border=NA,
+        space=0,
+        col=my.colors[1:myK],
+        xlab="Geographic regions",
+        ylab="Ancestry proportions",
+        main=paste0("Ancestry Matrix K=", myK)) #creates a label with whatever myK is in the title
+
+axis(1,
+     at=1:length(myKQmeta$region),
+     labels=myKQmeta$region,
+     tick=F,
+     cex.axis=0.5,
+     las=3) #turns labels on side (allegedly)
+dev.off()
+#notice how this compares to the PCA! distinct cluster in PNW, also CEU, decent admixture for everything else

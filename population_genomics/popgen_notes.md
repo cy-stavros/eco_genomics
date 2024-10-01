@@ -92,3 +92,14 @@ Notes:
 - also learned that plot() of a pca gives you a scree plot
 
 - then discussed Admixture Analysis (structure), but didn't get to coding it yet. Looking forward to doing that soon!
+
+### 10-1-24
+
+- Starting with admixture analysis (03) and then moving on to scanning for selection (04)
+
+- snmf takes much less time, computational power than bayesean analyses but yields similar results
+
+- (03 script is heavily annotated, see it for more detailed notes)
+
+-
+
