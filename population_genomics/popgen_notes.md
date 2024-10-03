@@ -101,5 +101,17 @@ Notes:
 
 - (03 script is heavily annotated, see it for more detailed notes)
 
--
+- You provide a range of possible K values (we did 1:10)
+
+- the plot of CentAdmix helps us determine an optimal K value (in the "elbow" of the graph)
+
+- the shape of this graph is similar to the amount of variation explained by each subsecquent PC
+
+- generated figures showinf the results of this AA.
+
+- for 04, first regenerating the vcfr and metadata files
+
+- creating manahattan plot
+
+- 
 

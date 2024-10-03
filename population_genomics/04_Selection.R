@@ -35,7 +35,7 @@ chrnum <- as.data.frame(cbind(chr.main, seq(1,8,1)))
 Pval <- pcadapt.pca$pvalues #NAs are alleles w/ freq <1% (we filtered those out!)
 
 pcadapt.MHplot <- cbind(vcfR.fix, Pval)
-pcadapt.MHplot <- left_join(chrnum, pcadapt.MHplot, join_by(chr.main==CHROM)) #stuck here
+pcadapt.MHplot <- left_join(chrnum, pcadapt.MHplot, join_by(chr.main==CHROM)) #stuck here for a while
 
 pcadapt.MHplot <- pcadapt.MHplot %>% 
   mutate(SNP=paste0(chr.main, "_", POS))

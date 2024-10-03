@@ -49,7 +49,8 @@ heatmap.bp(DP[1:1000,], rlabels=F, clabels=F)
 
 library(SNPfiltR)
 
-vcf.filt <- hard_filter
+hard_filter(vcf)
+vcf.filt <- hard_filter(vcf, depth=3)
 
 #removes all genotypes with less than 3 reads
 #5 or 10 would be more stringent
