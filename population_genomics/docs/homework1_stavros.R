@@ -1,12 +1,19 @@
 library(vcfR)
 library(SNPfiltR)
+library(tidyverse)
+library(qqman)
+
+#helps solve plotting issues
+X11.options(type="cairo")
+options(bitmapType = "cairo")
 
 setwd("/gpfs1/cl/pbio3990/PopulationGenomics")
 
 vcf <- read.vcfR("variants/Centaurea_filtered.vcf.gz")
 
 
-#not sure if i this is necessary, but bringing in reference genome
+#not sure if this is necessary, but bringing in reference genome 
+#try running w/o it later
 
 dna <- ape::read.dna("reference/GCA_030169165.1_ASM3016916v1_genomic.fa.gz", format = "fasta")
 
@@ -59,16 +66,137 @@ meta2$pop = as.factor(meta$pop)
 
 #indMisscuttoff = 0.75 actually nvm i'll just create 3 separate vcfs
 
+#least stringent - 36 inds removed
 vcf.filt.indMiss.75 <- missing_by_sample(vcf.filt,
                                       popmap=meta2,
                                       cutoff = 0.75)
-
-vcf.filt.indMiss.80 <- missing_by_sample(vcf.filt,
+#more stringent - 58 inds removed
+vcf.filt.indMiss.70 <- missing_by_sample(vcf.filt,
                                       popmap=meta2,
-                                      cutoff = 0.80)
-
-vcf.filt.indMiss.85 <- missing_by_sample(vcf.filt,
+                                      cutoff = 0.70)
+#most stringent - 84 inds removed
+vcf.filt.indMiss.65 <- missing_by_sample(vcf.filt,
                                       popmap=meta2,
-                                      cutoff = 0.85)
+                                      cutoff = 0.65)
+
 #alrighty saving my stuff now to return to later
-#also i just realized i filtered in the wrong direction lol
+
+#picking back up monday
+#first, filtering the .75
+
+vcf.filt.indMiss.75 <- filter_biallelic(vcf.filt.indMiss.75) #removing non-biallelic
+vcf.filt.indMiss.75 <- min_mac(vcf.filt.indMiss.75, min.mac = 1) #mac = Minor Allele Count, min.mac=1 excludes all minor alleles
+
+vcf.filt.indSNPMiss.75 <- missing_by_snp(vcf.filt.indMiss.75, cutoff=0.5) #filtering missingness by SNP
+
+vcf.filt.indSNPMiss.75 #taking a peek at it:
+# ***** Object of Class vcfR *****
+# 593 samples
+# 19 CHROMs
+# 15,456 variants
+# Object size: 103.4 Mb
+# 29.84 percent missing data
+# *****        *****         *****
+
+#creating a file of depth
+DP2.75 <- extract.gt(vcf.filt.indSNPMiss.75,
+                  element = "DP",
+                  as.numeric = T)
+#viewing it on the heatmap -note, not necessary, we can prob leave this out for the other two/delete later
+heatmap.bp(DP2.75[1:5000,],
+           rlabels=F,
+           clabels=F)
+
+#not sure if i need to write this somewhere or nah
+#write.vcf(vcf.filt.indSNPMiss,
+#          "~/projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.vcf.gz")
+
+#alrighty, filtering done for this level of missingness. moving on to the analyses. 
+#we'll reiterate all that's above for the next two levels later
+
+#we need to find:
+
+#b. Genome-wide diversity for each region (Hs) and its standard deviation (SD)
+#c. The number of loci with Hs=0 vs. Hs>0 for each region 
+#d. Genetic structure using either PCA or Admixture analysis
+
+#finding genome-wide diversity for each region (Hs) and its Std Dev:
+
+#importing metadata again for next steps
+
+meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
+
+head(meta) # our vcf file has 593 samples, but
+dim(meta) # meta has 629 inds
+
+newmeta2 <- meta[meta$id %in% colnames(vcf.filt.indSNPMiss.75@gt[,-1]),] #filtering meta to consist only of the inds remaining post-filtering
+dim(newmeta2) #now it matches!
+
+#calculate diversity stats using genetic_diff function in vcfR
+vcf.filt.indSNPMiss.75.div <- genetic_diff(vcf.filt.indSNPMiss.75,
+                        pops=as.factor(newmeta2$region),
+                        method = "nei")
+
+str(vcf.filt.indSNPMiss.75.div) #peeking at structure
+
+chr.main <- unique(vcf.filt.indSNPMiss.75.div$CHROM)[1:8] #taking the first 8 chromosomes (ignoring the tiny scaffolds)
+
+chrnum <- as.data.frame(cbind(chr.main, seq(1, 8, 1))) #numbering the chromosomes
+
+#don't need to MH plot, so skipping the plotting steps but keeping w/ the same filtering
+#in case i forget, .Hs is gonna have the same filtering steps as .MHplot in 02
+
+#joining chromosome num to our vcf
+vcf.filt.indSNPMiss.75.div.Hs <- left_join(chrnum, vcf.filt.indSNPMiss.75.div, join_by(chr.main==CHROM)) 
+
+#filtering out Gst(Fst) values <0 and creating "SNP" column w/ both chromo # and bp position
+vcf.filt.indSNPMiss.75.div.Hs <- vcf.filt.indSNPMiss.75.div.Hs %>%
+  filter(Gst>0) %>%
+  mutate(SNP=paste0(chr.main,"_",POS))
+
+#making these columns numeric, not characters
+vcf.filt.indSNPMiss.75.div.Hs$V2 = as.numeric(vcf.filt.indSNPMiss.75.div.Hs$V2)
+vcf.filt.indSNPMiss.75.div.Hs$POS = as.numeric(vcf.filt.indSNPMiss.75.div.Hs$POS)
+
+
+#note to self: all this chromosome stuff might be completely unnecessary. consider removing when cleaning up the script
+#this is where 02 moves on to Hs
+names(vcf.filt.indSNPMiss.75.div.Hs) #Hs values are in columns 4-9
+
+#taking a peek at what our Hs values look like for each region w/ a histogram
+vcf.filt.indSNPMiss.75.div.Hs %>% 
+  as_tibble() %>%
+  pivot_longer(c(4:9)) %>%
+  ggplot(aes(x=value, fill=name)) +
+  geom_histogram(position="identity", alpha=0.5, bins=50) +
+  labs(title="Genome-wide expected heterozygosity (Hs)",fill="Regions",
+       x="Gene diversity (Hs) within Regions", y="Counts of SNPs")
+
+#generating table with the summary statistics we need!!!
+
+loci <- nrow(vcf.filt.indSNPMiss.75.div.Hs) #15403 loci at this stage
+#to get number of loci where Hs = 0, we'll do loci - the N we calculate after filtering values that equal 0
+
+Hs_table.75 <- vcf.filt.indSNPMiss.75.div.Hs %>%
+  as_tibble() %>% 
+  pivot_longer(c(4:9)) %>% 
+  group_by(name) %>% 
+  filter(value!=0) %>% 
+  summarise(avg_Hs=mean(value), StdDev_Hs=sd(value), N_Hs=n(), N_0Hs=loci-n()) 
+
+# A tibble: 6 x 5
+# name   avg_Hs StdDev_Hs  N_Hs N_0Hs
+# <chr>   <dbl>     <dbl> <int> <int>
+#1 Hs_CEU  0.174     0.158  8132  7271
+#2 Hs_NE   0.105     0.139 14041  1362
+#3 Hs_NEU  0.198     0.155  7297  8106
+#4 Hs_PNW  0.147     0.158  9947  5456
+#5 Hs_SEU  0.242     0.153  5041 10362
+#6 Hs_WEU  0.192     0.155  7671  7732
+
+write.csv(Hs_table.75, "~/projects/eco_genomics/population_genomics/outputs/Hs_table.75_noZeros.csv",
+          quote=F,
+          row.names=F)
+
+#alrighty we got our Hs and StdDev by region, as well as the number of Hs=0 vs. Hs>0 for each region!
+#taking a break here. saving all my stuff!

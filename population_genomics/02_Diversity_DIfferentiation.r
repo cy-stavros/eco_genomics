@@ -1,4 +1,4 @@
-#idk how my whole script got saved, but pasting Sage's in
+#idk how my whole script got wiped, but pasting Sage's in
 
 # Estimating diversity and genetic differentiation in the filtered centaurea data
 
@@ -23,7 +23,7 @@ dim(meta) #meta has 629 inds
 meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]),] #%in% "also found in"
 dim(meta2)
 
-#calculate diversity stats using genertic_diff fxn in vcfR
+#calculate diversity stats using genetic_diff fxn in vcfR
 vcf.div <- genetic_diff(vcf,
                         pops=as.factor(meta2$region),
                         method = "nei")
