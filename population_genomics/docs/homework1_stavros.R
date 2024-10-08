@@ -107,9 +107,9 @@ heatmap.bp(DP2.75[1:5000,],
            rlabels=F,
            clabels=F)
 
-#not sure if i need to write this somewhere or nah
-#write.vcf(vcf.filt.indSNPMiss,
-#          "~/projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.vcf.gz")
+#writing this so I don't have to rerun this all in the future
+write.vcf(vcf.filt.indSNPMiss.75,
+          "~/projects/eco_genomics/population_genomics/outputs/vcf.75.filtered.vcf.gz")
 
 #alrighty, filtering done for this level of missingness. moving on to the analyses. 
 #we'll reiterate all that's above for the next two levels later
@@ -200,3 +200,11 @@ write.csv(Hs_table.75, "~/projects/eco_genomics/population_genomics/outputs/Hs_t
 
 #alrighty we got our Hs and StdDev by region, as well as the number of Hs=0 vs. Hs>0 for each region!
 #taking a break here. saving all my stuff!
+
+#alright i'm back. i now see the value of saving this stuff lol. I don't wanna run this all again!
+#saved the vcf.gz this time!
+#now to get cracking on the pca
+#d. Genetic structure using either PCA or Admixture analysis
+
+#incase i wanna pick back up where i was
+#vcf.filt.indSNPMiss.75 <- read.vcfR(~/projects/eco_genomics/population_genomics/outputs/vcf.75.filtered.vcf.gz)
