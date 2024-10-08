@@ -24,10 +24,13 @@ dim(meta2)
 
 write.vcf(vcf.thin, "outputs/vcf_final.filtered.thinned.vcf.gz")
 
+
 #hide uncompressed vcf file (too big for github!) outside of our repo
 
 system("gunzip -c ~/projects/eco_genomics/population_genomics/outputs/vcf_final.filtered.thinned.vcf.gz > ~/vcf_final.filtered.thinned.vcf") 
 #system() basically lets you do stuff like you would in command line
+
+
 
 geno <- vcf2geno(input.file="/gpfs1/home/c/s/cstavros/vcf_final.filtered.thinned.vcf",
                  output.file = "outputs/vcf_final.filtered.thinned.geno")
