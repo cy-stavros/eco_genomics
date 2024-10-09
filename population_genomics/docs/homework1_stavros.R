@@ -354,7 +354,7 @@ write.csv(Hs_table.70, "~/projects/eco_genomics/population_genomics/outputs/Hs_t
           row.names=F)
 
 #incase i wanna pick back up where i was
-#vcf.filt.indSNPMiss.70 <- read.vcfR("/outputs/vcf.70.filtered.vcf.gz")
+vcf.filt.indSNPMiss.70 <- read.vcfR("outputs/vcf.70.filtered.vcf.gz")
 
 #thinning out, eliminating SNPs within 500bp
 vcf.filt.indSNPMiss.70.thin <- distance_thin(vcf.filt.indSNPMiss.70, min.distance = 500)
@@ -384,12 +384,11 @@ geno.70 <- vcf2geno(input.file="/gpfs1/home/c/s/cstavros/vcf.70.filtered.thinned
 PCA.70 <- LEA::pca("outputs/vcf.70.filtered.thinned.geno", scale=TRUE)
 
 ggplot(as.data.frame(PCA.70$projections),
-       aes(x=V1, y=V2, color=pcameta2$region, shape=pcameta2$continent)) +
+       aes(x=V1, y=-V2, color=pcameta2$region, shape=pcameta2$continent)) +
   geom_point(alpha=.5) +
   labs(title="Centaurea genetic PCA", x="PC1", y="PC2", color="Region",shape="Continent")
 
-#okay, it's weird and upside down from the last one, but it'll do for the moment.
-#apparently john had the same problec, i'll see if he has any wisdom about this
+#this one came out inverted, so I changed y from V2 to -V2
 
 #yay! saving rn
 ggsave("figures/PCA.70_PC1vPC2.pdf", width=6, height=6, units="in")
