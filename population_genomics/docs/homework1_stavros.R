@@ -504,9 +504,13 @@ write.csv(Hs_table.65, "~/projects/eco_genomics/population_genomics/outputs/Hs_t
 #putting the bookmark in here, i'll be back after class!
 
 
-
+#picking  back up here, let's hope my read can spare me the pre-filtering
 #incase i wanna pick back up where i was
-#vcf.filt.indSNPMiss.65 <- read.vcfR("/outputs/vcf.65.filtered.vcf.gz")
+#note, how far you have to go back on the file path is directly related to what
+#file your directory is in. rn i'm in outputs, but if i was in pop_gen i would 
+#have to precede the file name w/ /outputs/
+
+vcf.filt.indSNPMiss.65 <- read.vcfR("vcf.65.filtered.vcf.gz")
 
 #thinning out, eliminating SNPs within 500bp
 vcf.filt.indSNPMiss.65.thin <- distance_thin(vcf.filt.indSNPMiss.65, min.distance = 500)
@@ -545,3 +549,5 @@ ggplot(as.data.frame(PCA.65$projections),
 
 #yay! saving rn
 ggsave("figures/PCA.65_PC1vPC2.pdf", width=6, height=6, units="in")
+
+#alrighty i think we're done here. now to just clean up the script and write the dang paper!
