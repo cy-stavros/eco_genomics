@@ -17,3 +17,17 @@
 - note that this data has a serious right skew. most trascripts are lowly expressed, a few have a lottttt of expression (lotsa transcripts)
 
 - filtered to exclude transcripts with less than
+
+### 10-10-2024 - Taking DESeq data and making MAplot, volcano plot, and heatmap
+
+- starting by rerunning previous script (01) to get dds back
+
+- from that, getting a smaller df with just the results we're interested in
+
+- picking out the highest transcript to graph + compare between dev temps
+
+- this helps orient us, now we know a positive logfold2 means upreg in d22/downreg in d18
+
+-next making MA plot
+
+- this helps us visualize the overdispersion, also the amount of upreg/downreg on each side.
