@@ -3,7 +3,7 @@ library(DESeq2)
 
 options(bitmapType = "cairo")
 
-setwd("~/projects/eco_genomics2024/transcriptomics/") #idk why but it said "cannot change wd", 
+#setwd("~/projects/eco_genomics2024/transcriptomics/") #idk why but it said "cannot change wd", 
 #so I just clicked on the thingy in the session tab
 
 #import counts matrix
@@ -82,5 +82,6 @@ p <- ggplot(pcaData, aes(PC1, PC2, color = FinalTemp, shape = DevTemp)) +
        y = paste0('PC2: ', percentVar[2], ' %')) +
   theme_bw(base_size = 16)
 
+p
 #cool! looks like most clustering is happening between finaltemp, not dev temp which is kinda interesting
     

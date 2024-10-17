@@ -16,7 +16,13 @@
 
 - note that this data has a serious right skew. most trascripts are lowly expressed, a few have a lottttt of expression (lotsa transcripts)
 
-- filtered to exclude transcripts with less than
+- filtered to exclude transcripts with less than 10 reads
+
+- filtered transcripts that appear in less than 15 samples
+
+- running the DESeq program!
+
+- generating a quick pca, looks like clustering is mostly happening between finaltemp
 
 ### 10-10-2024 - Taking DESeq data and making MAplot, volcano plot, and heatmap
 
@@ -31,3 +37,5 @@
 -next making MA plot
 
 - this helps us visualize the overdispersion, also the amount of upreg/downreg on each side.
+
+### 10-17-2024 - Doing contrast stuff
