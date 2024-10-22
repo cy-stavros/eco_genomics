@@ -69,3 +69,127 @@ length(intersect(degs_D18_BASE_D22_BASE, intersect(degs_D18_A33_D22_A33, degs_D1
 #23 #~nested interesects~ to compare all 3
 
 #cool, see your venn diagram in your notes. picking up here tuesday.
+
+###### making euler plots cont'd ######
+
+# calculate the # of unique genes in each portion of the Euler plot
+1935-107-44+23 #(adding back in the triple overlap so we don't double-count)
+#1807 transcripts diff expressed uniquely at BASE btwn 18&22
+
+296-107-29+23 #183 uniquely expressed when exposed to 28
+
+78-44-29+23 #28 genes uniquely expressed whhen exposed to 33
+
+107-23 #84 unique to BASE & 28
+
+44-23 #21 unique to BASE & A33
+
+29-23 #6 unique to A28 & A33
+
+myEuler <- euler(c("BASE"=1807, "A28" = 183, "A33" = 28, "BASE&A28" = 84, 
+                   "BASE&A33" = 21, "A28&A33" = 6, "BASE&A28&A33" = 23))
+
+plot(myEuler, lty=1:3, quantities=TRUE)
+
+#cool!
+
+###### make a scatterplot of responses to A28/23 when copepods develop at 18 vs 22 #####
+
+# contrast D18_A28 vs BASE
+res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D18BASE","D18A28"), alpha = 0.05))
+
+#contrast D22_A28 vs BASE
+res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D22BASE","D22A28"), alpha = 0.05))
+
+#merge dfs
+res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18",".22"))
+
+#putting row.names back as true rownames and then deleting
+rownames(res_df28) <- res_df28$Row.names
+res_df28 <- res_df28[,-1]
+
+library(dplyr)
+library(tidyr)
+
+#define colormapping logic with the mutate function
+
+res_df28 <- res_df28 %>%  
+  mutate(fill = case_when(
+    padj.18 < 0.05 & stat.18 < 0 ~ "turquoise2",
+    padj.18 < 0.05 & stat.18 > 0 ~ "magenta",
+    padj.22 < 0.05 & stat.22 < 0 ~ "blue2",
+    padj.22 < 0.05 & stat.22 > 0 ~ "red"
+  ))
+
+#plot:
+
+ggplot(res_df28, aes(x = log2FoldChange.18, y=log2FoldChange.22, color = fill)) +
+  geom_point(alpha=0.8) +
+  scale_color_identity() +
+  labs(x= "Log2FoldChange 28 vs. BASE at 18",
+       y= "Log2FoldChange 28 vs. BASE 22",
+       title= "How does response to 28 C vary by DevTemp?") +
+  theme_minimal()
+
+#neat!
+
+#count the # of points per fill color
+color_counts <- res_df28 %>% 
+  group_by(fill) %>% 
+  summarise(count=n())
+
+label_positions <- data.frame(
+  fill= c("blue", "magenta", "red", "turquoise2"),
+  x_pos = c(1,5,0,-7.5),
+  y_pos = c(-5, 0, 9, 3)
+)
+
+ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+       geom_point(alpha=0.8) +
+         scale_color_identity() +
+  labs(x="Log2FoldChange 28 vs BASE at 18",
+       y="Log2FoldCHange 28 vs BASE at 22",
+       title = "How does response to 28 C vary by DevTemp?") +
+  theme_minimal()
+# + the label stuff look at your picture of sage's script
+
+#copied & pasted from above + then will modify for 33 (maybe on hw???)
+###### make a scatterplot of responses to A28/23 when copepods develop at 18 vs 22 #####
+
+# contrast D18_A28 vs BASE
+res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D18BASE","D18A28"), alpha = 0.05))
+
+#contrast D22_A28 vs BASE
+res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D22BASE","D22A28"), alpha = 0.05))
+
+#merge dfs
+res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18",".22"))
+
+#putting row.names back as true rownames and then deleting
+rownames(res_df28) <- res_df28$Row.names
+res_df28 <- res_df28[,-1]
+
+library(dplyr)
+library(tidyr)
+
+#define colormapping logic with the mutate function
+
+res_df28 <- res_df28 %>%  
+  mutate(fill = case_when(
+    padj.18 < 0.05 & stat.18 < 0 ~ "turquoise2",
+    padj.18 < 0.05 & stat.18 > 0 ~ "magenta",
+    padj.22 < 0.05 & stat.22 < 0 ~ "blue2",
+    padj.22 < 0.05 & stat.22 > 0 ~ "red"
+  ))
+
+#plot:
+
+ggplot(res_df28, aes(x = log2FoldChange.18, y=log2FoldChange.22, color = fill)) +
+  geom_point(alpha=0.8) +
+  scale_color_identity() +
+  labs(x= "Log2FoldChange 28 vs. BASE at 18",
+       y= "Log2FoldChange 28 vs. BASE 22",
+       title= "How does response to 28 C vary by DevTemp?") +
+  theme_minimal()
+
+#neat!

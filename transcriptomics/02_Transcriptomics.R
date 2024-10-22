@@ -72,3 +72,4 @@ pheatmap(mat, annotation_col=df, show_rownames=FALSE, clusrer_cols=T, cliter_row
 #made by ubmga? or something, doesn't actually imply phylogeny
 #transcripts clustering together could be on the same pathway possibly
 #notice individuals are clustered by devtemp, not so much by finaltemp!
+
