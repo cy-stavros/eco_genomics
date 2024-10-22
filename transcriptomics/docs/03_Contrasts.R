@@ -35,12 +35,12 @@ res_D18_A28_D22_A28 <- res_D18_A28_D22_A28[order(res_D18_A28_D22_A28$padj),] #or
 head(res_D18_A28_D22_A28)
 summary(res_D18_A28_D22_A28)
 
-#make a list of which genes in our comparisons of interest are differnetially expressed (list of DEGs)
+#make a list of which genes in our comparisons of interest are differentially expressed (list of DEGs)
 degs_D18_A28_D22_A28 <- row.names(res_D18_A28_D22_A28[res_D18_A28_D22_A28$padj < .05,])
 plotMA(res_D18_A28_D22_A28, ylim=c(-4,4))
 
 
-#3 compare gene expression between developmental temp treatment groups at A28
+#3 compare gene expression between developmental temp treatment groups at A33
 res_D18_A33_D22_A33 <- results(dds, contrast=c("group", "D18A33", "D22A33"), alpha = 0.05) #filtering for significance
 res_D18_A33_D22_A33 <- res_D18_A33_D22_A33[!is.na(res_D18_A33_D22_A33$padj),] #filtering out NA pvals
 res_D18_A33_D22_A33 <- res_D18_A33_D22_A33[order(res_D18_A33_D22_A33$padj),] #ordering A33d on pvals

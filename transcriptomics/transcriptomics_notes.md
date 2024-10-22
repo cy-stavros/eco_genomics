@@ -38,4 +38,37 @@
 
 - this helps us visualize the overdispersion, also the amount of upreg/downreg on each side.
 
+- as always, check out the inline notes!
+
+- next, transfering results and p-vals only into a new df to make a volcano plot
+
+- cool! in addition to the .05 p-value threshold, a threshold of a log fold 2 change of >1 is added (meaning diff exp must be at least 2x in magnitude!!)
+
+- in this case, it looks like there is more upreg in 22 / downreg in 18
+
+- next, looking at things through a heatmap
+
+- columns are samples, rows are genes
+
+- note that the phenograms on the side do not imply evolutionary relatedness of the transcripts,
+but could be indicative transcripts working in the same pathway
+
 ### 10-17-2024 - Doing contrast stuff
+
+- within the DESeq file (dds), we're not setting up groups by each unique comparison of factors (e.g. d18a33 vs d18a28)
+
+- by grouping them like this we can compare within and between factors
+
+- first, we're comparing gene expression at baseline between developmental temps ("18BASE" vs "22BASE")
+
+- to do so, making results file where NA's are filtered out, pvals must be over .05, and ordering based on pvals
+
+- making a list of transcripts (and MA plotting them) that a differentially expressed
+
+- rinse & repeating for A28 and A33
+
+- looking at the length of the dfs we made (ie the number of transcripts in each comparison)
+
+- using nested intersect()s to find the overlap in all 3 comparisons
+
+- check venn diagram in physical notes if this isn't clicking!
