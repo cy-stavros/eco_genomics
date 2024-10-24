@@ -72,3 +72,6 @@ but could be indicative transcripts working in the same pathway
 - using nested intersect()s to find the overlap in all 3 comparisons
 
 - check venn diagram in physical notes if this isn't clicking!
+
+### 10-22-2024 - continuing w/ euler plots and then making plots that compare log fold change (idk what they're called)
+### 10-24-2024 - continuing with yesterday's plots and starting wgcna network analysis

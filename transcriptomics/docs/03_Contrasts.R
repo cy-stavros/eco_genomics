@@ -144,37 +144,47 @@ label_positions <- data.frame(
   y_pos = c(-5, 0, 9, 3)
 )
 
-ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+label_data <- merge(color_counts, label_positions, by = "fill")
+
+plot28 <- ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
        geom_point(alpha=0.8) +
          scale_color_identity() +
+  geom_text(data = label_data, aes(x=x_pos, y= y_pos, label = count, color = fill), size=5)+
+  geom_abline(intercept = 0, slope=1, linetype = "dashed", color ="black")+
+  geom_abline(intercept = 0, slope=-1, linetype= "dashed", color = "grey")+
+  xlim(-10,10) + ylim(-10,10)+
   labs(x="Log2FoldChange 28 vs BASE at 18",
        y="Log2FoldCHange 28 vs BASE at 22",
        title = "How does response to 28 C vary by DevTemp?") +
   theme_minimal()
+
+#what is label_data?
 # + the label stuff look at your picture of sage's script
 
 #copied & pasted from above + then will modify for 33 (maybe on hw???)
-###### make a scatterplot of responses to A28/23 when copepods develop at 18 vs 22 #####
 
-# contrast D18_A28 vs BASE
-res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D18BASE","D18A28"), alpha = 0.05))
 
-#contrast D22_A28 vs BASE
-res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D22BASE","D22A28"), alpha = 0.05))
+######### Repeating everything for A33 ########
+
+# contrast D18_A33 vs BASE
+res_D18_BASEvsA33 <- as.data.frame(results(dds, contrast=c("group","D18BASE","D18A33"), alpha = 0.05))
+
+#contrast D22_A33 vs BASE
+res_D22_BASEvsA33 <- as.data.frame(results(dds, contrast=c("group","D22BASE","D22A33"), alpha = 0.05))
 
 #merge dfs
-res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18",".22"))
+res_df33 <- merge(res_D18_BASEvsA33, res_D22_BASEvsA33, by = "row.names", suffixes = c(".18",".22"))
 
 #putting row.names back as true rownames and then deleting
-rownames(res_df28) <- res_df28$Row.names
-res_df28 <- res_df28[,-1]
+rownames(res_df33) <- res_df33$Row.names
+res_df33 <- res_df33[,-1]
 
 library(dplyr)
 library(tidyr)
 
 #define colormapping logic with the mutate function
 
-res_df28 <- res_df28 %>%  
+res_df33 <- res_df33 %>%  
   mutate(fill = case_when(
     padj.18 < 0.05 & stat.18 < 0 ~ "turquoise2",
     padj.18 < 0.05 & stat.18 > 0 ~ "magenta",
@@ -184,12 +194,39 @@ res_df28 <- res_df28 %>%
 
 #plot:
 
-ggplot(res_df28, aes(x = log2FoldChange.18, y=log2FoldChange.22, color = fill)) +
+ggplot(res_df33, aes(x = log2FoldChange.18, y=log2FoldChange.22, color = fill)) +
   geom_point(alpha=0.8) +
   scale_color_identity() +
-  labs(x= "Log2FoldChange 28 vs. BASE at 18",
-       y= "Log2FoldChange 28 vs. BASE 22",
-       title= "How does response to 28 C vary by DevTemp?") +
+  labs(x= "Log2FoldChange 33 vs. BASE at 18",
+       y= "Log2FoldChange 33 vs. BASE 22",
+       title= "How does response to 33 C vary by DevTemp?") +
   theme_minimal()
 
-#neat!
+
+
+
+label_data <- merge(color_counts, label_positions, by = "fill")
+
+plot33 <- ggplot(res_df33, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+  geom_point(alpha=0.8) +
+  scale_color_identity() +
+  geom_text(data = label_data, aes(x=x_pos, y= y_pos, label = count, color = fill), 
+            size=5)+
+  geom_abline(intercept = 0, slope=1, linetype = "dashed", color ="black")+
+  geom_abline(intercept = 0, slope=-1, linetype= "dashed", color = "grey")+
+  xlim(-10,10) + ylim(-10,10)+
+labs(x="Log2FoldChange 33 vs BASE at 18",
+     y="Log2FoldCHange 33 vs BASE at 22",
+     title = "How does response to 33 C vary by DevTemp?") +
+  theme_minimal()
+
+#idk why the lower count label isn't working
+#also the count labels are the same for 33 for some reason :/
+library(gridExtra)
+
+combined_plot <- grid.arrange(plot28, plot33, ncol = 2)
+
+ggsave("~/projects/eco_genomics/transcriptomics/figures/combined_scatter_plot.png", 
+       combined_plot, width = 12, height = 6)
+#ope nvm figured it out
+
