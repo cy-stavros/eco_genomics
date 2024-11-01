@@ -35,7 +35,7 @@ gsg <- goodSamplesGenes(t(rounded_filtered_count_matrix))
 summary(gsg)
 
 table(gsg$goodGenes)
-#8203 good genes, 37235 bad genes???
+#82203 good genes, 37235 bad genes???
 #goodness and badness determined by stats things like overdispersion ig
 
 # FALSE  TRUE 
@@ -126,4 +126,87 @@ grid.arrange(a1, a2, nrow=2)
 
 #basically the top graph shows how increasing power thresholds increase the statistical power of the model,
 #but at the same time it decreases the avg number of connections each node has
+# we want to maximize mean connectivity (avg # of connections while also maximizing scale free topology model fit)
+#selecting threshold of 26
 
+soft_power <- 26
+temp_cor <- cor
+cor <- WGCNA::cor #this sets the temp_cor function to use WGCNA's correlation function
+
+norm.counts[] <- sapply(norm.counts, as.numeric)
+
+#the comman below creates the network and identifies modules based on the parameters that we chose
+bwnet26 <- blockwiseModules(norm.counts,
+                            maxBlockSize = 30000,
+                            TOMType = "signed", #only focusing on positive correlations
+                            power = soft_power,
+                            mergeCutHeight = .25,
+                            numericLabels = FALSE,
+                            randomSeed=1234,
+                            verbose = 3)
+
+#takes a hot minute ^^^^, in hw request more memory
+
+#run again! L in labels wasn't capitalized and an extra s in random seed :/
+
+
+cor <- temp_cor #this resets cor function to base R's cor function of using WCGNA's
+
+#STEP 5: Explore Module Eigengenes
+
+module_eigengenes <- bwnet26$MEs
+
+head(module_eigengenes)
+dim(module_eigengenes)
+#lets goooo! 51 modules for .2.6. [incase i acccidentally find and replace]
+#get the number of genes for each module
+table(bwnet26$colors)
+
+
+#plot the dendrogram and the module colors:
+plotDendroAndColors(bwnet26$dendrograms[[1]], cbind(bwnet26$unmergedColors, bwnet26$colors),
+                    c("unmerged", "merged"),
+                    dendroLabels = FALSE,
+                    addGuide = TRUE,
+                    hang = 0.03,
+                    guideHang = 0.05)
+
+saveRDS(bwnet26, file = "outputs/bwnet26.rds")
+
+#to load the bwnet file in later
+
+#(make sure you're in the transcriptomics directory when you do this)
+
+#step 6: Correlation of modules with traits!
+
+#define the numbers of genes & samples
+nSamples <- nrow(norm.counts) #7
+nGenes <- ncol(norm.counts) #29559 ? (sample script has 1750)
+#i think there is a serious issue here bc there are far more genes that colors! (slateblue.1 problem!)
+
+# test for a correlation between module eigengenes and trait data
+module.trait.corr <- cor(module_eigengenes, traitData, use = 'p') #'p' is pearson's correlation
+
+#calculating pvalies for each correlation
+
+module.trait.corr.pvals <- corPvalueStudent(module.trait.corr, nSamples)
+
+# visualize module-trait association as a heatmap 
+heatmap.data <- merge(module_eigengenes, traitData, by = 'row.names')
+head(heatmap.data)
+
+#address error of row.names not being numeric
+heatmap.data <- heatmap.data %>% 
+  column_to_rownames(var = 'Row.names')
+
+names(heatmap.data)
+
+#make pretty heatmap of correlations
+
+CorLevelPlot(heatmap.data,
+             x = names(heatmap.data)[52:54], #these values might need to change based on the # of eigengenes
+             y = names(heatmap.data)[1:41],
+             col = c("blue2", "skyblue", "white", "pink", "red"))
+
+#cool! make sure to slap some labels on here.
+#tryign to figure out what the heck the three final columns actually mean
