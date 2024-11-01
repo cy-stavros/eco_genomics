@@ -183,6 +183,8 @@ saveRDS(bwnet26, file = "outputs/bwnet26.rds")
 nSamples <- nrow(norm.counts) #7
 nGenes <- ncol(norm.counts) #29559 ? (sample script has 1750)
 #i think there is a serious issue here bc there are far more genes that colors! (slateblue.1 problem!)
+#on second thought, it's not like there's 1750 colors either. 
+#still weird it's different than the sample script, but there must be some other reason my colors aren't showing up
 
 # test for a correlation between module eigengenes and trait data
 module.trait.corr <- cor(module_eigengenes, traitData, use = 'p') #'p' is pearson's correlation
@@ -209,4 +211,6 @@ CorLevelPlot(heatmap.data,
              col = c("blue2", "skyblue", "white", "pink", "red"))
 
 #cool! make sure to slap some labels on here.
-#tryign to figure out what the heck the three final columns actually mean
+#trying to figure out what the heck the three final columns actually mean
+
+#also note to self: save some other way besides zooming & right click b/c they look corrupted or something on github
