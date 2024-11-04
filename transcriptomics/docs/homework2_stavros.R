@@ -2,7 +2,7 @@ library(ggplot2)
 library(DESeq2)
 library(dplyr)
 library(tidyr)
-
+library(eulerr)
 
 options(bitmapType = "cairo")
 
@@ -71,8 +71,8 @@ resultsNames(dds)
 # [5] "group_D22A33_vs_D18A28"  "group_D22BASE_vs_D18A28"
 
 #1. compare gene expression between D18BASE and D18A23
-
-res_D18_BASE_D18_A28 <- results(dds, contrast=c("group", "D18BASE", "D18A28"), alpha = 0.05) #filtering for significance
+#(reversing order so that upregulation means higher expression in 28!!!)
+res_D18_BASE_D18_A28 <- results(dds, contrast=c("group", "D18A28", "D18BASE"), alpha = 0.05) #filtering for significance
 res_D18_BASE_D18_A28 <- res_D18_BASE_D18_A28[!is.na(res_D18_BASE_D18_A28$padj),] #filtering out NA pvals
 res_D18_BASE_D18_A28 <- res_D18_BASE_D18_A28[order(res_D18_BASE_D18_A28$padj),] #ordering based on pvals
 head(res_D18_BASE_D18_A28)
@@ -80,20 +80,21 @@ summary(res_D18_BASE_D18_A28)
 
 # out of 35524 with nonzero total read count
 # adjusted p-value < 0.05
-# LFC > 0 (up)       : 11, 0.031%
-# LFC < 0 (down)     : 30, 0.084%
+# LFC > 0 (up)       : 30, 0.084%
+# LFC < 0 (down)     : 11, 0.031%
 # outliers [1]       : 0, 0%
 # low counts [2]     : 0, 0%
 
 #note to self here: come back and be sure you know which group up and down reg is in reference to.
+#okay for future reference the format is contrasts = c("condition", "treated", "untreated")
 
 #make a list of which genes in our comparisons of interest are differentially expressed (list of DEGs)
 degs_D18_BASE_D18_A28 <- row.names(res_D18_BASE_D18_A28[res_D18_BASE_D18_A28$padj < .05,])
 plotMA(res_D18_BASE_D18_A28, ylim=c(-4,4))
 
 #2. compare gene expression between D18BASE and D18A33
-
-res_D18_BASE_D18_A33 <- results(dds, contrast=c("group", "D18BASE", "D18A33"), alpha = 0.05) #filtering for significance
+#switching the factors to make a proper comparison again
+res_D18_BASE_D18_A33 <- results(dds, contrast=c("group", "D18A33", "D18BASE"), alpha = 0.05) #filtering for significance
 res_D18_BASE_D18_A33 <- res_D18_BASE_D18_A33[!is.na(res_D18_BASE_D18_A33$padj),] #filtering out NA pvals
 res_D18_BASE_D18_A33 <- res_D18_BASE_D18_A33[order(res_D18_BASE_D18_A33$padj),] #ordering based on pvals
 head(res_D18_BASE_D18_A33)
@@ -101,8 +102,8 @@ summary(res_D18_BASE_D18_A33)
 
 # out of 35524 with nonzero total read count
 # adjusted p-value < 0.05
-# LFC > 0 (up)       : 92, 0.26%
-# LFC < 0 (down)     : 240, 0.68%
+# LFC > 0 (up)       : 240, 0.68%
+# LFC < 0 (down)     : 92, 0.26%
 # outliers [1]       : 0, 0%
 # low counts [2]     : 0, 0%
 
@@ -113,7 +114,7 @@ plotMA(res_D18_BASE_D18_A33, ylim=c(-4,4))
 length(degs_D18_BASE_D18_A28)
 #41 differentially expressed genes
 length(degs_D18_BASE_D18_A33)
-#296 DEGs
+#332 DEGs
 
 #look at the overlaps in which genes are differentially expressed in both contrasts
 length(intersect(degs_D18_BASE_D18_A28, degs_D18_BASE_D18_A33))
@@ -122,9 +123,9 @@ length(intersect(degs_D18_BASE_D18_A28, degs_D18_BASE_D18_A33))
 #making euler plots
 
 41-34 #7 transcripts unique to BASE vs 28
-296-34 #262 transcripts unique to BASE vs 33
+332-34 #298 transcripts unique to BASE vs 33
 
-myEuler <- euler(c("A28" = 7, "A33" = 262, "A28&A33" = 34))
+myEuler <- euler(c("A28" = 7, "A33" = 298, "A28&A33" = 34))
 
 plot(myEuler, lty=1:3, quantities=TRUE)
 
@@ -132,12 +133,13 @@ plot(myEuler, lty=1:3, quantities=TRUE)
 #not sure if that would be appropriate tho b/c its comparing to a different baseline?
 
 ###### make a scatterplot of responses to A28/33 when copepods develop at 18 #####
+#going back in and rerunning w/ factors in proper order now
 
 # contrast D18_A28 vs D18_A33
-res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D18BASE","D18A28"), alpha = 0.05))
+res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast=c("group","D18A28", "D18BASE"), alpha = 0.05))
 
 #contrast D22_A28 vs BASE
-res_D18_BASEvsA33 <- as.data.frame(results(dds, contrast=c("group","D18BASE","D18A33"), alpha = 0.05))
+res_D18_BASEvsA33 <- as.data.frame(results(dds, contrast=c("group", "D18A33", "D18BASE"), alpha = 0.05))
 
 #merge dfs
 res_dfD18 <- merge(res_D18_BASEvsA28, res_D18_BASEvsA33, by = "row.names", suffixes = c(".28",".33"))
@@ -204,3 +206,4 @@ plotD18
 #okay after a lotta digging it looks like the opposite is true. 
 #I'm hitting the hay for now, but in the morning I'll have to 
 #reverse the order on all the contrast statments.
+#fixed!!!
