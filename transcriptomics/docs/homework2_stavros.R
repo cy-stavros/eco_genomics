@@ -366,4 +366,4 @@ ggsave("~/projects/eco_genomics/transcriptomics/figures/HWcombined_scatter_plot.
 combined_euler <- grid.arrange(EuD18, EuD22, ncol = 2)
 
 ggsave("~/projects/eco_genomics/transcriptomics/figures/HWcombined_euler.png", 
-       combined_plot, width = 12, height = 6)
+       combined_euler, width = 12, height = 6)
