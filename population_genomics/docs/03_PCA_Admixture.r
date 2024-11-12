@@ -88,7 +88,7 @@ plot(CentAdmix, col="blue4", main="SNMF")
 plot(CentPCA$eigenvalues[1:10], ylab="Eigenvalues", xlab="Number of PCs", col="blue4", main="PCA") #notice the similarity in graphs!
 dev.off() #resets to non-stacked plots
 
-myK = 4 #creates little placeholder we can modify later
+myK = 5 #creates little placeholder we can modify later
 
 CE = cross.entropy(CentAdmix, K=myK)
 best = which.min(CE)
@@ -122,3 +122,8 @@ axis(1,
      las=3) #turns labels on side (allegedly)
 dev.off()
 #notice how this compares to the PCA! distinct cluster in PNW, also CEU, decent admixture for everything else
+
+######experimenting for my final project#####
+
+#trying to train k model on european data, and then use it to group new world data
+
