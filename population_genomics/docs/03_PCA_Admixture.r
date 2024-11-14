@@ -3,6 +3,7 @@ library(vcfR)
 library(SNPfiltR)
 library(LEA)
 
+
 options(bitmapType = "cairo")
 
 setwd("~/projects/eco_genomics/population_genomics/")
@@ -126,4 +127,32 @@ dev.off()
 ######experimenting for my final project#####
 
 #trying to train k model on european data, and then use it to group new world data
+
+#first trying to see if i can just subset the file for just european data
+
+geno <- vcf2geno(input.file="/gpfs1/home/c/s/cstavros/vcf_final.filtered.thinned.vcf",
+                 output.file = "outputs/vcf_final.filtered.thinned.geno")
+#somehow subset this^
+
+EuCentAdmix <- snmf("outputs/vcf_final.filtered.thinned.geno",
+                  K=1:10, #giving it a range of K values
+                  entropy = T, #asks it to do cross-validation
+                  repetitions = 3,
+                  project = "new") # if you're adding to this analysis later, you could choose project="
+#use subsetted file in snmf function
+
+#alrighty it looks like we might just have to use structure after all
+
+#trying to convert vcf to structure format
+#first trying to install this guy's package for converting:
+
+# with BiocManager:
+library(BiocManager)
+BiocManager::install("JeffWeinell/misc.wrappers")
+library(misc.wrappers)
+detach("package:BiocManager", unload = TRUE)
+#alrighty that just loaded a bunch of junk just for it to not work in the end :/
+
+
+
 
