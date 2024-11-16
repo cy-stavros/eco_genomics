@@ -70,7 +70,7 @@ resultsNames(dds)
 # [1] "Intercept"               "group_D18A33_vs_D18A28"  *"group_D18BASE_vs_D18A28"* "group_D22A28_vs_D18A28" 
 # [5] "group_D22A33_vs_D18A28"  "group_D22BASE_vs_D18A28"
 
-#1. compare gene expression between D18BASE and D18A28
+#1. compare gene expression between D18BASE and D18A23
 #(reversing order so that upregulation means higher expression in 28!!!)
 res_D18_BASE_D18_A28 <- results(dds, contrast=c("group", "D18A28", "D18BASE"), alpha = 0.05) #filtering for significance
 res_D18_BASE_D18_A28 <- res_D18_BASE_D18_A28[!is.na(res_D18_BASE_D18_A28$padj),] #filtering out NA pvals
@@ -120,14 +120,14 @@ length(degs_D18_BASE_D18_A33)
 length(intersect(degs_D18_BASE_D18_A28, degs_D18_BASE_D18_A33))
 #34 genes differentially expressed in both contrasts
 
-#making euler plots
+# making euler plots
 
 41-34 #7 transcripts unique to BASE vs 28
 332-34 #298 transcripts unique to BASE vs 33
 
-myEulerD18 <- euler(c("A28" = 7, "A33" = 298, "A28&A33" = 34))
+myEuler <- euler(c("A28" = 7, "A33" = 298, "A28&A33" = 34))
 
-EuD18 <- plot(myEulerD18, lty=1:3, quantities=TRUE)
+plot(myEuler, lty=1:3, quantities=TRUE)
 
 #man, euler plots don't look as cool with just two circles (unless i wanna add in d22?)
 #not sure if that would be appropriate tho b/c its comparing to a different baseline?
@@ -176,7 +176,7 @@ label_positions <- data.frame(
   fill= c("blue", "magenta", "red", "turquoise2"),
   x_pos = c(1,5,0,-7.5),
   y_pos = c(-5, 0, 9, 3)
-)
+) 
 
 label_data <- merge(color_counts, label_positions, by = "fill")
 
@@ -208,8 +208,7 @@ plotD18
 #reverse the order on all the contrast statments.
 #fixed!!!
 
-#all of my work on 22 didn't save :(
-
+##### Repeating all of the above for D22! ##########
 
 ######################## Contrasts - D22 ###############################
 #set up groups within DESeq object
@@ -222,7 +221,7 @@ resultsNames(dds)
 # [1] "Intercept"               "group_D18A33_vs_D18A28"  *"group_D18BASE_vs_D18A28"* "group_D22A28_vs_D18A28" 
 # [5] "group_D22A33_vs_D18A28"  "group_D22BASE_vs_D18A28"
 
-#1. compare gene expression between D22BASE and D22A28
+#1. compare gene expression between D22BASE and D22A23
 #(reversing order so that upregulation means higher expression in 28!!!)
 res_D22_BASE_D22_A28 <- results(dds, contrast=c("group", "D22A28", "D22BASE"), alpha = 0.05) #filtering for significance
 res_D22_BASE_D22_A28 <- res_D22_BASE_D22_A28[!is.na(res_D22_BASE_D22_A28$padj),] #filtering out NA pvals
@@ -272,19 +271,19 @@ length(degs_D22_BASE_D22_A33)
 length(intersect(degs_D22_BASE_D22_A28, degs_D22_BASE_D22_A33))
 #144 genes differentially expressed in both contrasts
 
-#making euler plots
+# making euler plots
 
 289-144 #145 transcripts unique to BASE vs 28
-1564-144 #1420 transcripts unique to BASE vs 33
+1564-34 #1530 transcripts unique to BASE vs 33
 
-myEulerD22 <- euler(c("A28" = 145, "A33" = 1420, "A28&A33" = 144))
+myEulerD22 <- euler(c("A28" = 145, "A33" = 1530, "A28&A33" = 144))
 
-EuD22 <- plot(myEulerD22, lty=1:3, quantities=TRUE)
+plot(myEulerD22, lty=1:3, quantities=TRUE)
 
 #man, euler plots don't look as cool with just two circles (unless i wanna add in d22?)
 #not sure if that would be appropriate tho b/c its comparing to a different baseline?
 
-###### make a scatterplot of responses to A28/33 when copepods develop at 22 #####
+###### make a scatterplot of responses to A28/33 when copepods develop at 18 #####
 #going back in and rerunning w/ factors in proper order now
 
 # contrast D22_A28 vs D22_A33
@@ -328,7 +327,7 @@ label_positions <- data.frame(
   fill= c("blue", "magenta", "red", "turquoise2"),
   x_pos = c(1,5,0,-7.5),
   y_pos = c(-5, 0, 9, 3)
-)
+) 
 
 label_data <- merge(color_counts, label_positions, by = "fill")
 
@@ -346,29 +345,12 @@ plotD22 <- ggplot(res_dfD22, aes(x = log2FoldChange.28, y=log2FoldChange.33, col
 
 plotD22
 
-#cool, but like before, the lower label is just not showing up. also no scripts were posted from this day :/
-#looks like this is will be a job for ppt text boxes lol
 
-#interp: upper left quadrant: upregged in 33, downregged in 28
-# upper right: upregged in both 33 and 28
-# lower right: downregged in 33, upregged in 28
-# lower left: downregged in 33, downregged in 33
-
-####### making combined graphs:########
+####Combining the graphs + saving!
 
 library(gridExtra)
 
-combined_plot <- grid.arrange(plotD18, plotD22, ncol = 2)
+combined_plot <- grid.arrange(plot28, plot33, ncol = 2)
 
-ggsave("~/projects/eco_genomics/transcriptomics/figures/HWcombined_scatter_plot.png", 
+ggsave("~/projects/eco_genomics/transcriptomics/figures/combined_scatter_plot.png", 
        combined_plot, width = 12, height = 6)
-
-
-
-png(filename = "~/projects/eco_genomics/transcriptomics/figures/HWcombined_euler.png")
-
-combined_euler <- grid.arrange(EuD18, EuD22, ncol = 2)
-
-dev.off()
-
-

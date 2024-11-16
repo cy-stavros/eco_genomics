@@ -153,6 +153,83 @@ library(misc.wrappers)
 detach("package:BiocManager", unload = TRUE)
 #alrighty that just loaded a bunch of junk just for it to not work in the end :/
 
+#trying vcf2others
+
+library(vcf2others)
+#no return message, but it looks like it loaded
+
+#okay i need to use the vcf2structure() function
+
+thinnedvcf <- read.vcfR("/gpfs1/home/c/s/cstavros/vcf_final.filtered.thinned.vcf")
+
+#as i understand itvcf2structre needs metadata in a specific format, 
+#I'm not super sure how to make that happen rn
+
+meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
+
+dim(meta)
+
+meta2 <- meta[meta$id %in% colnames(thinnedvcf@gt[, -1]) , ]
+
+dim(meta2)
+
+#pasting stuff I don't think is gonna work from chatgpt:
+#(i was right lol)
+
+#checking vcf and meta align
+vcf_samples <- colnames(thinnedvcf@gt)  # thinnedvcf is the VCF object
+
+# Check the sample names in your metadata
+metadata_samples <- meta2$id  # Adjust this column name if it's different
+
+# Check if sample names match
+identical(vcf_samples, metadata_samples)
+
+#alright trying with slightly less dumb gpt answer:
+
+ind_pop <- meta2$region
+#keep_pop <- unique(ind_pop)
+#keep_pop <- rep(TRUE, length(ind_pop))
+
+#after arguing w/ chatgpt for like 30 minutes and then actually 
+#just finding the source code:
+
+# Make sure ind_pop is a factor (you might already have this)
+ind_pop <- factor(ind_pop)
+
+# Create a factor for keep_pop with all unique population names (same as ind_pop)
+keep_pop <- factor(unique(ind_pop))
 
 
 
+
+
+vcf2structure(
+  vcf = thinnedvcf,           # Your VCF object
+  ind_pop = ind_pop,       # Vector of population info from metadata
+  keep_pop = keep_pop,     # Whether to keep all populations or filter
+  inc_missing = TRUE,      # Whether to include missing genotypes
+  out_file = "thinned.str",  # Output file name
+  method = "S"             # Structure format method
+)
+
+
+#thank god that finally worked! checking the formatting now
+
+# Read the .str file into R as a data frame
+#my_structure_file <- read.table("thinned.str", header = FALSE, 
+                                #sep = " ")
+#yields a df with one column
+#my_structure_file <- read.delim("thinned.str", header = FALSE)
+#yields the V1, V2 thingy
+
+#my_structure_file <- read.fwf("thinned.str", widths = rep(10, 100))
+#doesn't even work
+
+my_structure_file <- read.table("thinned.str", header = FALSE, sep = "\t")
+
+# Preview the first few rows
+head(my_structure_file)
+
+#okay none of this crap is working, but I downloaded the file it and it looks 
+#pretty normal in my notepad. wrapping up for the night.
