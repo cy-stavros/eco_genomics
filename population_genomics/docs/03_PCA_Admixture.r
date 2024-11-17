@@ -228,8 +228,33 @@ vcf2structure(
 
 my_structure_file <- read.table("thinned.str", header = FALSE, sep = "\t")
 
+
 # Preview the first few rows
 head(my_structure_file)
 
 #okay none of this crap is working, but I downloaded the file it and it looks 
 #pretty normal in my notepad. wrapping up for the night.
+#hold on i just looked at it in the environment tab and it looks super normal, 
+#i think the head function is just buggin bc there are so many dang columns
+
+#duplicating the metadata and stitching IDs, also flag info to the structure file
+
+meta2_repeated <- meta2 %>%
+  slice(rep(1:n(), each = 2))
+
+region_repeated <- meta2_repeated %>%
+  select(region)
+
+id_repeated <- meta2_repeated %>%
+  select(id)
+
+popflag <-  meta2_repeated %>%
+  mutate(flag = ifelse(region == "CEU"|region == "NEU"|region == "SEU", 1, 0)) %>%
+  select(flag)
+
+
+
+structure_with_meta <- bind_cols(id_repeated, region_repeated, popflag, my_structure_file)
+
+write.table(structure_with_meta, file = "thinnedwithmeta.str", append = TRUE, 
+            quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
