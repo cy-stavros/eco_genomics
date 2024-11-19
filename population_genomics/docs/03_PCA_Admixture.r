@@ -242,14 +242,6 @@ regions <- c("PNW", "NE", "WEU", "CEU", "NEU", "SEU")
 
 regiondf <- regions[my_structure_file$V1]
 
-# 
-# id_repeated <- meta2_repeated %>%
-#   select(id)
-# 
-# popflag <-  meta2_repeated %>%
-#   mutate(flag = ifelse(region == "CEU"|region == "NEU"|region == "SEU", 1, 0)) %>%
-#   select(flag)
-
 popflagdf <- ifelse(my_structure_file$V1 %in% 3:6, 1, 0)
 
 structure_with_meta <- bind_cols(popflagdf, regiondf, my_structure_file)
@@ -257,7 +249,8 @@ structure_with_meta <- bind_cols(popflagdf, regiondf, my_structure_file)
 write.table(structure_with_meta, file = "thinnedwithmeta.str", append = TRUE, 
             quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
 
-#structure_and_meta <- read.table("thinnedwithmeta.str", header = FALSE, sep = "\t")
+structure_and_meta <- read.table("thinnedwithmeta.str", header = TRUE, sep = "\t")
+
 
 #okay i thought i was good, but the popflag isn't correct for WEU, also idk 
 #what the ascending 1, 2, 3, 4, 5, 6 column is after popflag?
@@ -276,3 +269,101 @@ as_tibble(keep_pop)
 
 #looks like i won't be able to salvage individual id, but i'll go in and 
 #rebind with correct pop labels and popflags
+#okay that's all done, but i wanna use LEA to estimate K just within the european subpops
+
+
+####### estimating european k ########
+
+setwd("~/projects/eco_genomics/population_genomics/")
+fullvcf <- read.vcfR("outputs/vcf_final.filtered.vcf.gz")
+
+fullvcf.thin <- distance_thin(fullvcf, min.distance = 500)
+
+#okay i have to somehow only get the european samples out of here, but the 
+#metadata is in the meta file :/
+
+meta <- read.csv("/gpfs1/cl/pbio3990/PopulationGenomics/metadata/meta4vcf.csv")
+meta2 <- meta[meta$id %in% colnames(fullvcf.thin@gt[, -1]) , ]
+
+
+europe <- c("WEU", "CEU", "NEU", "SEU")
+
+europemeta <- meta2 %>% filter(region %in% europe)
+europeids <- europemeta$id
+
+europevcf.thin <- fullvcf.thin[, c("CHROM", "POS", europeids)] #that didn't work for some reason
+
+colnames(fullvcf.thin@gt)[-1] #these all look good
+
+europe_indices  <- which(colnames(fullvcf.thin@gt) %in% europeids)
+
+europevcf.thin <- fullvcf.thin[, c(1, europe_indices)]
+
+x <- colnames(europevcf.thin@gt)[-1]
+#okay looks good (i think) 
+
+europeids == x
+#okay not all the same, but maybe that just has to do with ordering?
+
+setequal(x, europeids)
+#okay they are the same!!! HUGE
+
+#okay now to determine K.
+
+write.vcf(europevcf.thin, "outputs/europevcf.thin.vcf.gz")
+
+
+#hide uncompressed vcf file (too big for github!) outside of our repo
+
+system("gunzip -c ~/projects/eco_genomics/population_genomics/outputs/europevcf.thin.vcf.gz > ~/europevcf.thin.vcf") 
+#system() basically lets you do stuff like you would in command line
+
+
+
+eurogeno <- vcf2geno(input.file="/gpfs1/home/c/s/cstavros/europevcf.thin.vcf",
+                 output.file = "outputs/europevcf.thin.geno")
+#"3 line(s) were removed because these are not SNPs."
+#idk if i need to worry about that, probably not
+
+EuroCentAdmix <- snmf("outputs/europevcf.thin.geno",
+                  K=1:10, #giving it a range of K values
+                  entropy = T, #asks it to do cross-validation
+                  repetitions = 3,
+                  project = "new")
+
+plot(EuroCentAdmix)
+#it looks like 4 might be a good number, it's lowest at 5 but there are
+#4 sampled pops (see screenshot) (11/19/24)
+#making barplot!
+
+myK = 6 #creates little placeholder we can modify later
+
+CE = cross.entropy(EuroCentAdmix, K=myK)
+best = which.min(CE)
+#not sure why my results aren't printing to screen rn
+
+myKQ = Q(EuroCentAdmix, K=myK, run=best)
+#results in a big matrix, where each column is a different group
+
+myKQmeta = cbind(myKQ, europemeta) #to use cbind(), you have to have the same number of rows in the same order!
+
+my.colors = c("blue4", "gold", "tomato", "lightblue", "olivedrab", "purple") #setting up little color palette
+
+myKQmeta = as_tibble(myKQmeta) %>% 
+  group_by(continent) %>% 
+  arrange(region, pop, .by_group = T) #says: first group by continent, and then group within contnent by region and pop
+
+barplot(as.matrix(t(myKQmeta[ , 1:myK])),
+        border=NA,
+        space=0,
+        col=my.colors[1:myK],
+        xlab="Geographic regions",
+        ylab="Ancestry proportions",
+        main=paste0("Ancestry Matrix K=", myK)) #creates a label with whatever myK is in the title
+
+axis(1,
+     at=1:length(myKQmeta$region),
+     labels=myKQmeta$region,
+     tick=F,
+     cex.axis=0.5,
+     las=3) #turns labels on side (allegedly)
