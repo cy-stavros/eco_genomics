@@ -143,15 +143,7 @@ EuCentAdmix <- snmf("outputs/vcf_final.filtered.thinned.geno",
 
 #alrighty it looks like we might just have to use structure after all
 
-#trying to convert vcf to structure format
-#first trying to install this guy's package for converting:
-
-# with BiocManager:
-library(BiocManager)
-BiocManager::install("JeffWeinell/misc.wrappers")
-library(misc.wrappers)
-detach("package:BiocManager", unload = TRUE)
-#alrighty that just loaded a bunch of junk just for it to not work in the end :/
+######### Converting vcf to structre ########
 
 #trying vcf2others
 
@@ -238,23 +230,49 @@ head(my_structure_file)
 #i think the head function is just buggin bc there are so many dang columns
 
 #duplicating the metadata and stitching IDs, also flag info to the structure file
+#[ignore all, just found out vcf2structure reorders it all]
+# #meta2_repeated <- meta2 %>%
+#   slice(rep(1:n(), each = 2))
+# 
+# region_repeated <- meta2_repeated %>%
+#   select(region)
 
-meta2_repeated <- meta2 %>%
-  slice(rep(1:n(), each = 2))
+regions <- c("PNW", "NE", "WEU", "CEU", "NEU", "SEU")
+#in the order they appear in .str file!
 
-region_repeated <- meta2_repeated %>%
-  select(region)
+regiondf <- regions[my_structure_file$V1]
 
-id_repeated <- meta2_repeated %>%
-  select(id)
+# 
+# id_repeated <- meta2_repeated %>%
+#   select(id)
+# 
+# popflag <-  meta2_repeated %>%
+#   mutate(flag = ifelse(region == "CEU"|region == "NEU"|region == "SEU", 1, 0)) %>%
+#   select(flag)
 
-popflag <-  meta2_repeated %>%
-  mutate(flag = ifelse(region == "CEU"|region == "NEU"|region == "SEU", 1, 0)) %>%
-  select(flag)
+popflagdf <- ifelse(my_structure_file$V1 %in% 3:6, 1, 0)
 
-
-
-structure_with_meta <- bind_cols(id_repeated, region_repeated, popflag, my_structure_file)
-
+structure_with_meta <- bind_cols(popflagdf, regiondf, my_structure_file)
+#sucess! overwriting old file
 write.table(structure_with_meta, file = "thinnedwithmeta.str", append = TRUE, 
             quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+
+#structure_and_meta <- read.table("thinnedwithmeta.str", header = FALSE, sep = "\t")
+
+#okay i thought i was good, but the popflag isn't correct for WEU, also idk 
+#what the ascending 1, 2, 3, 4, 5, 6 column is after popflag?
+#okay apparently these are population assignments (which group pops together),
+#so my meta is junk. row order is not preserved at all.
+
+#okay here are what the indices mean:
+as_tibble(keep_pop)
+
+# 1 PNW  
+# 2 NE   
+# 3 WEU  
+# 4 CEU  
+# 5 NEU  
+# 6 SEU 
+
+#looks like i won't be able to salvage individual id, but i'll go in and 
+#rebind with correct pop labels and popflags
