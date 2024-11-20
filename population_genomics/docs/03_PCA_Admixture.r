@@ -244,10 +244,24 @@ regiondf <- regions[my_structure_file$V1]
 
 popflagdf <- ifelse(my_structure_file$V1 %in% 3:6, 1, 0)
 
-structure_with_meta <- bind_cols(popflagdf, regiondf, my_structure_file)
+structure_with_meta <- bind_cols(regiondf, popflagdf, my_structure_file)
 #sucess! overwriting old file
-write.table(structure_with_meta, file = "thinnedwithmeta.str", append = TRUE, 
+write.table(structure_with_meta, file = "thinnedwithmeta3.str", append = TRUE, 
             quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+
+
+#i fear i have to put the region info after the population index in the structure file
+#the order of columns should be:
+#pop index (column 1 of structure file)
+#popflag
+#region (characters)
+#everything else
+
+structure_with_meta <- bind_cols(my_structure_file[,1], popflagdf, regiondf, my_structure_file[,-1])
+#sucess! overwriting old file
+write.table(structure_with_meta, file = "thinnedwithmeta4.str", append = TRUE, 
+            quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+
 
 structure_and_meta <- read.table("thinnedwithmeta.str", header = TRUE, sep = "\t")
 
