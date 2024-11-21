@@ -372,3 +372,39 @@ axis(1,
      cex.axis=0.5,
      las=3) #turns labels on side (allegedly)
 dev.off()
+
+
+
+
+#### remaking the file with meta so that euro = 1, 2, 3, 4 and every other pop is -9 ####
+setwd("/gpfs1/home/c/s/cstavros/projects/eco_genomics")
+structure_and_meta <- read.table("thinnedwithmeta4.str", header = FALSE, sep = "\t")
+
+correctedstruc <- structure_and_meta[order(structure_and_meta$V2, decreasing = T),]
+
+correctedstruc1 <- correctedstruc %>% 
+  mutate(V1 = case_when(
+    V1 == 3 ~ 1,
+    V1 == 4 ~ 2,
+    V1 == 5 ~ 3,
+    V1 == 6 ~ 4,
+    V1 == 1 ~ 5,
+    V1 == 2 ~ 6,
+    TRUE ~ V1  # Keep any values unchanged that don't match the above cases
+  ))
+
+
+#okay for future reference:
+#
+#1 - WEU
+#2 - CEU
+#3 - NEU
+#4 - SEU
+#5 - PNW
+#6 - NE
+#
+
+write.table(correctedstruc1, file = "correctedmeta.str", append = TRUE, 
+           quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+
+#lets goooooooooo
