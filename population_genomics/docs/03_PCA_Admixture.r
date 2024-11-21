@@ -89,7 +89,7 @@ plot(CentAdmix, col="blue4", main="SNMF")
 plot(CentPCA$eigenvalues[1:10], ylab="Eigenvalues", xlab="Number of PCs", col="blue4", main="PCA") #notice the similarity in graphs!
 dev.off() #resets to non-stacked plots
 
-myK = 5 #creates little placeholder we can modify later
+myK = 4 #creates little placeholder we can modify later
 
 CE = cross.entropy(CentAdmix, K=myK)
 best = which.min(CE)
@@ -304,8 +304,6 @@ europe <- c("WEU", "CEU", "NEU", "SEU")
 
 europemeta <- meta2 %>% filter(region %in% europe)
 europeids <- europemeta$id
-
-europevcf.thin <- fullvcf.thin[, c("CHROM", "POS", europeids)] #that didn't work for some reason
 
 colnames(fullvcf.thin@gt)[-1] #these all look good
 
