@@ -1,6 +1,6 @@
 new("snmfClass", directory = "K3/run1/", snmfClass.file = "europevcf.thin_r1.3.snmfClass", 
-    K = 3L, run = 1L, CPU = 1L, seed = 1882395249L, alpha = 10, 
+    K = 3L, run = 1L, CPU = 1L, seed = 371154923L, alpha = 10, 
     percentage = 0.05, I = 0L, iterations = 200L, entropy = TRUE, 
-    tolerance = 1e-05, crossEntropy = 0.268546265797983, ploidy = 2L, 
+    tolerance = 1e-05, crossEntropy = 0.274757624932569, ploidy = 2L, 
     Q.input.file = "", Q.output.file = "europevcf.thin_r1.3.Q", 
     G.output.file = "europevcf.thin_r1.3.G")

@@ -130,16 +130,7 @@ dev.off()
 
 #first trying to see if i can just subset the file for just european data
 
-geno <- vcf2geno(input.file="/gpfs1/home/c/s/cstavros/vcf_final.filtered.thinned.vcf",
-                 output.file = "outputs/vcf_final.filtered.thinned.geno")
-#somehow subset this^
-
-EuCentAdmix <- snmf("outputs/vcf_final.filtered.thinned.geno",
-                  K=1:10, #giving it a range of K values
-                  entropy = T, #asks it to do cross-validation
-                  repetitions = 3,
-                  project = "new") # if you're adding to this analysis later, you could choose project="
-#use subsetted file in snmf function
+#*stuff that didn't work*
 
 #alrighty it looks like we might just have to use structure after all
 
@@ -348,7 +339,7 @@ plot(EuroCentAdmix)
 #4 sampled pops (see screenshot) (11/19/24)
 #making barplot!
 
-myK = 6 #creates little placeholder we can modify later
+myK = 4 #creates little placeholder we can modify later
 
 CE = cross.entropy(EuroCentAdmix, K=myK)
 best = which.min(CE)
@@ -365,6 +356,7 @@ myKQmeta = as_tibble(myKQmeta) %>%
   group_by(continent) %>% 
   arrange(region, pop, .by_group = T) #says: first group by continent, and then group within contnent by region and pop
 
+pdf("figures/EUAdmixture_K4.pdf",width=10, height=5)
 barplot(as.matrix(t(myKQmeta[ , 1:myK])),
         border=NA,
         space=0,
@@ -379,3 +371,4 @@ axis(1,
      tick=F,
      cex.axis=0.5,
      las=3) #turns labels on side (allegedly)
+dev.off()
